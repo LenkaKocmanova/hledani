@@ -8,10 +8,10 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config();
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const resultsDir = path.join(__dirname, "saved-results");
 
 if (!fs.existsSync(resultsDir)) {
@@ -32,7 +32,7 @@ app.get("/api/search", async (req, res) => {
     return res.status(400).json({ error: "Missing query parameter 'q'." });
   }
 
-  const serpKey = import.meta.env.SERPAPI_KEY;
+  const serpKey = process.env.SERPAPI_KEY;
 
   if (!serpKey) {
     return res.status(500).json({
@@ -77,11 +77,13 @@ app.get("/api/search", async (req, res) => {
   }
 });
 
-const distPath = path.join(__dirname, "dist");
-app.use(express.static(distPath));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(distPath, "index.html"));
-});
+if (process.env.NODE_ENV === "production") {
+  const distPath = path.join(__dirname, "dist");
+  app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);

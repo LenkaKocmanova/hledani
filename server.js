@@ -32,7 +32,7 @@ app.get("/api/search", async (req, res) => {
     return res.status(400).json({ error: "Missing query parameter 'q'." });
   }
 
-  const serpKey = SERPAPI_KEY;
+  const serpKey = import.meta.env.SERPAPI_KEY;
 
   if (!serpKey) {
     return res.status(500).json({
